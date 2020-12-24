@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-def retrieve():
+def retrieve_nyt():
     r = requests.get("https://www.nytimes.com/puzzles/sudoku/easy")
     soup = BeautifulSoup(r.text,'html.parser')
     s = soup.find_all("script")[0].string
@@ -23,7 +23,7 @@ def convert(s):
 
 
 if __name__ == '__main__':
-    [e,m,h,el,ml,hl] = retrieve()
+    [e,m,h,el,ml,hl] = retrieve_nyt()
     print(el)
     print(ml)
     print(hl)
