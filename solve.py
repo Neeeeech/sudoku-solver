@@ -1,5 +1,15 @@
 from math import floor
 
+def col_iter(n, col_no):
+    return 9*n + col_no
+
+def row_iter(n, row_no):
+    return 9*row_no + n
+
+def box_iter(n, box_no):
+    return 3*(box_no % 3) + 27*floor(box_no / 3) + n % 3 + 9*floor(n / 3)
+
+
 def valid(board, i):
     row, col = floor(i / 9), i % 9
     row_head, box_start = row * 9, 9 * (row - (row % 3)) + (col - (col % 3))
@@ -76,6 +86,19 @@ def update_sures_related(board, possibles, tile_no):
         for m in range(3):
             if len(possibles[box_start + 9 * n + m]) == 1:
                 fill_in(board, possibles, box_start + 9 * n + m, possibles[box_start + 9 * n + m][0])
+    check_group(board, possibles, col, col_iter)
+    check_group(board, possibles, row, row_iter)
+    check_group(board, possibles, 3*(floor(row/3)) + floor(col/3), box_iter)
+
+def check_group(board, possibles, line_no, iterator):
+    line_poss = []
+    for n in range(9):
+        line_poss = line_poss + possibles[iterator(n, line_no)]
+    for m in range(1,10):
+        if line_poss.count(m) == 1:
+            for n in range(9):
+                if m in possibles[iterator(n, line_no)]:
+                    fill_in(board, possibles, iterator(n, line_no), m)
 
 
 def deterministic_solve(board):
@@ -84,6 +107,14 @@ def deterministic_solve(board):
         if board[tile_no] != 0:
             update_possibles(possibles, tile_no, board[tile_no])
     update_sures_all(board, possibles)
+    b_temp = []
+    while b_temp != board:
+        b_temp = board.copy()
+        for n in range(9):
+            check_group(board, possibles, n, col_iter)
+            check_group(board, possibles, n, row_iter)
+            check_group(board, possibles, n, box_iter)
+    print(possibles)
     return board
 
 
