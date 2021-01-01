@@ -1,5 +1,5 @@
 import solve
-from random import choice, randrange
+from random import choice, randrange, shuffle
 
 def gen_root():
     board, remaining = [0]*81, [[1, 2, 3, 4, 5, 6, 7, 8, 9] for n in range(81)]
@@ -24,7 +24,7 @@ def gen_root():
 
 
 def det_solvable(board):
-    return 0 in solve.deterministic_solve(board)
+    return 0 not in solve.deterministic_solve(board.copy())
 
 
 def is_unique(board):
@@ -77,6 +77,27 @@ def generate(diff):
         print(c)
 
 
+def gen_alt(diff):
+    while True:
+        root, order, i, f, d = gen_root(), list(range(81)), 0, True, diff - 2
+        board = root.copy()
+        shuffle(order)
+        while i >= 0:
+            board[order[i]] = 0 if board[order[i]] else root[order[i]]
+            if det_solvable(board):
+                if board.count(0) == diff:
+                    return board
+                i += 1
+                if i == 81:
+                    i -= 1
+                    while board[order[i]]:
+                        i -= 1
+                    if i < 58:
+                        break
+            elif board[order[i]]:
+                i -= 1
+
+
 def print_prb(board):
     pretty = board.copy()
     for i in range(81):
@@ -96,6 +117,8 @@ def print_prb(board):
 
 
 if __name__ == '__main__':
-    prb = generate(int(input('missing? ')))
+    prb = gen_alt(int(input('missing? ')))
     solve.print_board(prb)
     print_prb(prb)
+    print(f'unique? {is_unique(prb.copy())}')
+    solve.print_board(solve.deterministic_solve(prb.copy()))
